@@ -41,7 +41,6 @@
     <ClCompile Include="FEFLOW_struct.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\AutoBudgetGroupFixedHead_readme.docx" />
     <None Include="AutoBudgetGroupFixedHead.def" />
     <None Include="AutoBudgetGroupFixedHead.htm">
       <DeploymentContent>true</DeploymentContent>
