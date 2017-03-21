@@ -51,6 +51,7 @@
     <None Include="AutoBudgetGroupFixedHead.htm">
       <Filter>Documentation</Filter>
     </None>
+    <None Include="..\AutoBudgetGroupFixedHead_readme.docx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="AutoBudgetGroupFixedHead.txt">
