@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{854e351b-5a62-4900-a3c6-18cf7bcaf98c}</UniqueIdentifier>
+      <Extensions>h;inl</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{083f9751-7c24-4dc4-a24c-40f9475df110}</UniqueIdentifier>
+      <Extensions>cpp</Extensions>
+    </Filter>
+    <Filter Include="Documentation">
+      <UniqueIdentifier>{2daa9370-087a-4f87-a05b-b8ae1f558f9c}</UniqueIdentifier>
+      <Extensions>htm</Extensions>
+    </Filter>
+    <Filter Include="Copyright">
+      <UniqueIdentifier>{eb5e656b-f5f3-4f71-ad57-4dafa6a9433c}</UniqueIdentifier>
+      <Extensions>txt</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdifm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoBudgetGroupFixedHead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseflowStn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FEFLOW_struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IfmMLWInfo1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AutoBudgetGroupFixedHead.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseflowStn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FEFLOW_struct.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AutoBudgetGroupFixedHead.def" />
+    <None Include="AutoBudgetGroupFixedHead.htm">
+      <Filter>Documentation</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="AutoBudgetGroupFixedHead.txt">
+      <Filter>Copyright</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
