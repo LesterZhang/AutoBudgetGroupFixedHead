@@ -22,6 +22,9 @@ static void OnEditDocument (IfmDocument, Widget);
 static void PostSimulation (IfmDocument);
 static void PostTimeStep (IfmDocument);
 static void PostFlowSimulation (IfmDocument);
+static void PreSimulation(IfmDocument);
+static void OnChangeProblemClass(IfmDocument);
+static void OnLeaveProblemEditor(IfmDocument);
 
 /*
  * Enter a short description between the quotation marks in the following lines:
@@ -50,6 +53,12 @@ IfmResult RegisterModule(IfmModule pMod)
   IfmRegisterProc (pMod, "PostSimulation", 1, (IfmProc)PostSimulation);
   IfmRegisterProc (pMod, "PostTimeStep", 1, (IfmProc)PostTimeStep);
   IfmRegisterProc (pMod, "PostFlowSimulation", 1, (IfmProc)PostFlowSimulation);
+  IfmRegisterProc(pMod, "PreSimulation", 1, (IfmProc)PreSimulation);
+  IfmRegisterProc(pMod, "OnChangeProblemClass", 1, (IfmProc)OnChangeProblemClass);
+  IfmRegisterProc(pMod, "OnLeaveProblemEditor", 1, (IfmProc)OnLeaveProblemEditor);
+  
+  
+  
   return True;
 }
 
@@ -73,6 +82,22 @@ static void PostFlowSimulation (IfmDocument pDoc)
 {
   CAutoBudgetGroupFixedHead::FromHandle(pDoc)->PostFlowSimulation (pDoc);
 }
+
+static void OnChangeProblemClass(IfmDocument pDoc)
+{
+	CAutoBudgetGroupFixedHead::FromHandle(pDoc)->OnChangeProblemClass(pDoc);
+}
+
+static void PreSimulation(IfmDocument pDoc)
+{
+	CAutoBudgetGroupFixedHead::FromHandle(pDoc)->PreSimulation(pDoc);
+}
+static void OnLeaveProblemEditor(IfmDocument pDoc)
+{
+	CAutoBudgetGroupFixedHead::FromHandle(pDoc)->OnLeaveProblemEditor(pDoc);
+}
+
+
 
 /* --- IFMREG_END --- */
 #pragma endregion
@@ -107,6 +132,7 @@ CAutoBudgetGroupFixedHead::CAutoBudgetGroupFixedHead(IfmDocument pDoc)
 	, pBaseFlowStns(NULL)
 	, iNoStn(0)
 	, i_DataInput(1)
+	, iPrintHeading(0)
 {
 	/*
 	 * TODO: Add your own code here ...
@@ -121,15 +147,6 @@ CAutoBudgetGroupFixedHead::CAutoBudgetGroupFixedHead(IfmDocument pDoc)
 	{
 		IfmInfo(pDoc, "The input data is not read properly, please check to make sure the input data is in the right format and located in the same directory as the model file!");
 
-	}
-	else
-	{
-
-		foupOut.open((strFileName + ".out").c_str(), ios_base::out);
-		foupOut << setiosflags(ios::fixed | ios::left);
-
-		foupOut << setw(20) << "STN ID" << "\t" << setw(15) << "IN" << "\t" << setw(15) << "OUT" << "\t" << setw(15) << "IN-OUT" << endl;
-		foupOut.close();
 	}
 
 }
@@ -155,41 +172,44 @@ void CAutoBudgetGroupFixedHead::OnActivate (IfmDocument pDoc, Widget button)
 {
 
 	int i;
-	foupOut.open((strFileName + ".out").c_str(), ios_base::app);
+	//foupOut.open((strFileName + ".out").c_str(), ios_base::app);
 
-	if (i_DataInput == 0)
+	if (iOpenFoupoutFile(&iPrintHeading, foupOut))
 	{
-		i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
-		if (i == 1)
+		if (i_DataInput == 0)
 		{
-			IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
-
-		}
-	}
-	else
-	{
-
-		IfmInfo(pDoc, "The input data is not read properly while loading the plug-in, now we will try again!");
-		i = iInputData(strFileName);
-		if (i != 0)
-		{
-			IfmInfo(pDoc, "The input data is not read properly, please check to make sure the input data is in the right format and located in the same directory as the model file!");
-			return;
-		}
-		else 
-		{
-			i_DataInput = 0;
 			i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
 			if (i == 1)
 			{
 				IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
 
 			}
+		}
+		else
+		{
+
+			IfmInfo(pDoc, "The input data is not read properly while loading the plug-in, now we will try again!");
+			i = iInputData(strFileName);
+			if (i != 0)
+			{
+				IfmInfo(pDoc, "The input data is not read properly, please check to make sure the input data is in the right format and located in the same directory as the model file!");
+				return;
+			}
+			else
+			{
+				i_DataInput = 0;
+				i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
+				if (i == 1)
+				{
+					IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
+
+				}
+
+			}
 
 		}
-
+		foupOut.close();
 	}
-	foupOut.close();
 
 }
 
@@ -209,49 +229,88 @@ void CAutoBudgetGroupFixedHead::PostSimulation (IfmDocument pDoc)
 
 }
 
-void CAutoBudgetGroupFixedHead::PostTimeStep (IfmDocument pDoc)
+void CAutoBudgetGroupFixedHead::OnLeaveProblemEditor(IfmDocument pDoc)
 {
-  
+	/*
+	* TODO: Add your own code here ...
+	*/
+	currentModel.QueryFemInfo(pDoc);
+	if (iPrintHeading == 1)iPrintHeading = 0;
+
 }
 
-void CAutoBudgetGroupFixedHead::PostFlowSimulation (IfmDocument pDoc)
+
+void CAutoBudgetGroupFixedHead::PreSimulation(IfmDocument pDoc)
 {
+	/*
+	* TODO: Add your own code here ...
+	*/
+	//this is to resume the value of variable PreSimulation to be 0, so that the plug-in will print the heading in the output file: AutoBudgetGroupFixedHead.out
+	currentModel.QueryFemInfo(pDoc);
+	if (iPrintHeading == 1)iPrintHeading = 0;
+
+}
+
+void CAutoBudgetGroupFixedHead::OnChangeProblemClass(IfmDocument pDoc)
+{
+	/*
+	* TODO: Add your own code here ...
+	*/
+	//this is to resume the value of variable PreSimulation to be 0, so that the plug-in will print the heading in the output file: AutoBudgetGroupFixedHead.out
+	currentModel.QueryFemInfo(pDoc);
+	if (iPrintHeading == 1)iPrintHeading = 0;
+
+}
+
+
+void CAutoBudgetGroupFixedHead::PostTimeStep (IfmDocument pDoc)
+{
+
 	int i;
-	foupOut.open((strFileName + ".out").c_str(), ios_base::app);
+	//foupOut.open((strFileName + ".out").c_str(), ios_base::app);
 
-	if (i_DataInput == 0)
+	if (iOpenFoupoutFile(&iPrintHeading, foupOut))
 	{
-		i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
-		if (i == 1)
+		if (i_DataInput == 0)
 		{
-			IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
-
-		}
-	}
-	else
-	{
-
-		IfmInfo(pDoc, "The input data is not read properly while loading the plug-in, now we will try again!");
-		i = iInputData(strFileName);
-		if (i != 0)
-		{
-			IfmInfo(pDoc, "The input data is not read properly, please check to make sure the input data is in the right format and located in the same directory as the model file!");
-			return;
-		}
-		else
-		{
-			i_DataInput = 0;
 			i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
 			if (i == 1)
 			{
 				IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
 
 			}
+		}
+		else
+		{
+
+			IfmInfo(pDoc, "The input data is not read properly while loading the plug-in, now we will try again!");
+			i = iInputData(strFileName);
+			if (i != 0)
+			{
+				IfmInfo(pDoc, "The input data is not read properly, please check to make sure the input data is in the right format and located in the same directory as the model file!");
+				return;
+			}
+			else
+			{
+				i_DataInput = 0;
+				i = iBudgetCal(pDoc, foupOut, currentModel.iTimeClass);
+				if (i == 1)
+				{
+					IfmInfo(pDoc, "errors occure when calculate the budget for the group fixed-heads nodes, please check the input file");
+
+				}
+
+			}
 
 		}
-
+		foupOut.close();
 	}
-	foupOut.close();
+  
+}
+
+void CAutoBudgetGroupFixedHead::PostFlowSimulation (IfmDocument pDoc)
+{
+
 		
 }
 
@@ -393,5 +452,35 @@ int CAutoBudgetGroupFixedHead::iBudgetCal(IfmDocument _pDoc, ofstream& _foup, in
 		}
 		IfmInfo(_pDoc, "Calculations are completed, please check the output file 'AutoBudgetGroupFixedHead.out' for the result.\n");
 	}
+	return 0;
+}
+
+
+// Open the outfile and print the heading if it is needed
+int CAutoBudgetGroupFixedHead::iOpenFoupoutFile(int * _iPrintHeading, std::ofstream &_foupOut)
+{
+	if (*_iPrintHeading == 0) 
+	{
+		//open the file as a new file
+		_foupOut.open((strFileName + ".out").c_str(), ios_base::out);
+		if (_foupOut.is_open())
+		{
+			
+			_foupOut << setiosflags(ios::fixed | ios::left);
+
+			_foupOut << setw(20) << "STN ID" << "\t" << setw(15) << "IN" << "\t" << setw(15) << "OUT" << "\t" << setw(15) << "IN-OUT" << endl;
+			*_iPrintHeading = 1;
+			return 1;
+		}
+	}
+	else
+	{
+		//open the file for append output
+		_foupOut.open((strFileName + ".out").c_str(), ios_base::app);
+		*_iPrintHeading = 1;
+		return 1;
+	}
+
+	IfmInfo(m_pDoc, "The output file CAutoBudgetGroupFixedHead.out can not be opened, check if the file is locked.");
 	return 0;
 }

@@ -18,6 +18,10 @@ public:
   void PostSimulation (IfmDocument pDoc);
   void PostTimeStep (IfmDocument pDoc);
   void PostFlowSimulation (IfmDocument pDoc);
+  void PreSimulation(IfmDocument pDoc);
+  void OnChangeProblemClass(IfmDocument pDoc);
+  void OnLeaveProblemEditor(IfmDocument pDoc);
+
 #pragma endregion
 
 private:
@@ -45,4 +49,8 @@ public:
 
 	// Keep track if the input data is read properly
 	int i_DataInput;
+	// Check if it is needed to print the heading in the output file
+	int iPrintHeading;
+	// Open the outfile and print the heading if it is needed
+	int iOpenFoupoutFile(int * _iPrintHeading, std::ofstream& _foupOut);
 };
